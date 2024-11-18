@@ -1,0 +1,9 @@
+export { default as Dock } from './Dock';
+export { default as MiniProfile } from './MiniProfile';
+export { default as ContactMeForm } from './ContactMeForm';
+export { default as Navbar } from './Navbar';
+export { default as MainTitle } from './MainTitle';
+export { default as RecentProjects } from './RecentProjects';
+export { default as Exp } from './Exp';
+export { default as Tooltip } from './Tooltip';
+export { default as Article } from './Article';

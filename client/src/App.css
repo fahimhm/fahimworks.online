@@ -1,0 +1,50 @@
+@media (min-width: 1440px) {
+  #container {
+    grid-template-areas:
+      "navbar navbar"
+      "sidebar content1"
+      "sidebar content2"
+      "sidebar content3"
+      "sidebar content4"
+      "sidebar content5"
+      "footer footer"
+  }
+  
+  #navbar {
+    grid-area: navbar;
+  }
+  
+  #home {
+    grid-area: sidebar;
+  }
+  
+  #title {
+    grid-area: content1;
+  }
+  
+  #project {
+    grid-area: content2;
+  }
+  
+  #experience {
+    grid-area: content3;
+  }
+  
+  #article {
+    grid-area: content4;
+  }
+  
+  #contact {
+    grid-area: content5;
+  }
+}
+
+
+.glassmorphism {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
