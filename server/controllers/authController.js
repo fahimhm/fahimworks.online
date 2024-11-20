@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 
 const test = (req, res) => {
-  res.json('test is working')
+  res.json(`test is working: ${process.env.ORIGIN}`)
 }
 
 // register endpoint
