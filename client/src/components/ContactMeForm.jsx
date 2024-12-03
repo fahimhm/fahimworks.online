@@ -16,7 +16,7 @@ export default function ContactMeForm() {
     e.preventDefault();
     const { name, email, budget, message } = data;
     try {
-      const response = await axios.post('/send-email', { name, email, budget, message });
+      const response = await axios.post('https://api.fahimworks.online/send-email', { name, email, budget, message }, {withCredentials: true});
       if (response.data.error) {
         toast.error(response.data.error);
       } else {
@@ -43,17 +43,17 @@ export default function ContactMeForm() {
       </h2>
       <form onSubmit={handleForm} method='post' className='mt-5'>
         <div className='flex space-x-4'>
-          <label htmlFor='name' className='flex-grow block text-left sr-only'>Name
+          <label htmlFor='name' className='flex-grow block text-left'><span className='sr-only'>Name</span>
           <input type='text' name='name' value={data.name} onChange={(e) => setData({...data, name: e.target.value })} required placeholder='Your Name' className='outline-black w-full rounded-md py-2.5 px-4 border text-sm' />
           </label>
 
-          <label htmlFor='email' className='flex-grow block text-left sr-only'>Email
+          <label htmlFor='email' className='flex-grow block text-left'><span className='sr-only'>Email</span>
           <input type='email' name='email' value={data.email} onChange={(e) => setData({...data, email: e.target.value })} required placeholder='your@email.com' className='outline-black w-full rounded-md py-2.5 px-4 border text-sm' />
           </label>
         </div>
 
         <div className='flex mt-4'>
-          <label htmlFor='budget' className='flex-grow block text-left sr-only'>Budget
+          <label htmlFor='budget' className='flex-grow block text-left'><span className='sr-only'>Budget</span>
           <select
             name='budget' 
             value={data.budget} 
@@ -63,14 +63,14 @@ export default function ContactMeForm() {
             >
             <option value=''>Select...</option>
             <option value='&lt;$500'>&lt;$500</option>
-            <option value='&lt;$500-$1000'>&#36;$500-$1000</option>
-            <option value='&lt;$1000-$5000'>&#36;$1000-$5000</option>
+            <option value='$500-$1000'>$500 - 1000</option>
+            <option value='$1000-$5000'>$1000 - 5000</option>
           </select>
           </label>
         </div>
 
         <div className='flex mt-4'>
-          <label htmlFor='message' className='flex-grow block text-left sr-only'>message
+          <label htmlFor='message' className='flex-grow block text-left'><span className='sr-only'>message</span>
             <textarea name='message' value={data.message} onChange={(e) => setData({...data, message: e.target.value })} required placeholder='Message' className='outline-black w-full h-24 rounded-md py-2.5 px-4 border text-sm' />
           </label>
         </div>
