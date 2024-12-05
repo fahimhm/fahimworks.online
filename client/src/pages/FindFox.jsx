@@ -18,76 +18,75 @@ export default function FindFox() {
     const foxLetters = ['F', 'O', 'X'];
     let gridBoard;
 
-    do {
-      gridBoard = Array(size * size).fill(null);
+    // do {
+    gridBoard = Array(size * size).fill(null);
 
-      // Randomly choose a starting point and direction for the word FOX sequence
-      const startRow = Math.floor(Math.random() * size);
-      const startCol = Math.floor(Math.random() * size);
-      const direction = Math.random() < 0.5 ? 'horizontal' : 'vertical';
-      
-      if (direction === 'horizontal' && startCol <= size - 3) {
-        gridBoard[startRow * size + startCol] = 'F';
-        gridBoard[startRow * size + startCol + 1] = 'O';
-        gridBoard[startRow * size + startCol + 2] = 'X';
-      } else if (direction === 'vertical' && startRow <= size - 3) {
-        gridBoard[startRow * size + startCol] = 'F';
-        gridBoard[(startRow + 1) * size + startCol] = 'O';
-        gridBoard[(startRow + 2) * size + startCol] = 'X';
+    // Randomly choose a starting point and direction for the word FOX sequence
+    const directions = ['hor', 'ver', 'diaUp', 'diaDown']
+    const direction = directions[Math.floor(Math.random() * directions.length)];
+    const forward = Math.random() < 0.5;
+
+    let startRow, startCol;
+    if (direction === 'hor') {
+      startRow = Math.floor(Math.random() * size);
+      startCol = Math.floor(Math.random() * (size - 3));
+    } else if (direction === 'ver') {
+      startRow = Math.floor(Math.random() * (size - 3));
+      startCol = Math.floor(Math.random() * size);
+    } else if (direction === 'diaUp') {
+      startCol = Math.floor(Math.random() * (size - 3));
+      startRow = Math.floor(Math.random() * size);
+      if (startRow < size - 1) {
+        startRow = size - 1;
+      }
+    } else {
+      startRow = Math.floor(Math.random() * (size - 3));
+      startCol = Math.floor(Math.random() * (size - 3));
+    }
+    
+    if (direction === 'hor') {
+      if (forward) {
+        gridBoard[startRow * size + startCol] = foxLetters[0];
+        gridBoard[startRow * size + (startCol + 1)] = foxLetters[1];
+        gridBoard[startRow * size + (startCol + 2)] = foxLetters[2];
       } else {
-        // If the chosen position doesn't fit, place FOX at the end of the grid
-        gridBoard[size * size - 3] = 'F';
-        gridBoard[size * size - 2] = 'O';
-        gridBoard[size * size - 1] = 'X';
+        gridBoard[startRow * size + (startCol + 2)] = foxLetters[0];
+        gridBoard[startRow * size + (startCol + 1)] = foxLetters[1];
+        gridBoard[startRow * size + startCol] = foxLetters[2];
       }
-      
-      // Fill the rest of the grid with random letters
-      for (let i = 0; i < gridBoard.length; i++) {
-        if (gridBoard[i] === null) {
-          gridBoard[i] = foxLetters[Math.floor(Math.random() * foxLetters.length)];
-        }
+    } else if (direction === 'ver') {
+      if (forward) {
+        gridBoard[startRow * size + startCol] = foxLetters[0];
+        gridBoard[(startRow + 1) * size + startCol] = foxLetters[1];
+        gridBoard[(startRow + 2) * size + startCol] = foxLetters[2];
+      } else {
+        gridBoard[(startRow + 2) * size + startCol] = foxLetters[0];
+        gridBoard[(startRow + 1) * size + startCol] = foxLetters[1];
+        gridBoard[startRow * size + startCol] = foxLetters[2];
       }
-    } while (checkForMultipleFOX(gridBoard, size));
+    } else if (direction === 'diaDown') {
+      if (forward) {
+        gridBoard[startRow * size + startCol] = foxLetters[0];
+        gridBoard[(startRow + 1) * size + (startCol + 1)] = foxLetters[1];
+        gridBoard[(startRow + 2) * size + (startCol + 2)] = foxLetters[2];
+      } else {
+        gridBoard[(startRow + 2) * size + (startCol + 2)] = foxLetters[0];
+        gridBoard[(startRow + 1) * size + (startCol + 1)] = foxLetters[1];
+        gridBoard[startRow * size + startCol] = foxLetters[2];
+      }
+    } else if (forward) {
+      gridBoard[startRow * size + startCol] = foxLetters[0];
+      gridBoard[(startRow - 1) * size + (startCol + 1)] = foxLetters[1];
+      gridBoard[(startRow - 2) * size + (startCol + 2)] = foxLetters[2];
+    } else {
+      gridBoard[(startRow - 2) * size + (startCol + 2)] = foxLetters[0];
+      gridBoard[(startRow - 1) * size + (startCol + 1)] = foxLetters[1];
+      gridBoard[startRow * size + startCol] = foxLetters[2];
+    }
+    // }
+    
+    console.log('startRow:', startRow, 'startCol:', startCol, 'direction:', direction, 'forward:', forward, 'size', size);
     return gridBoard;
-  };
-
-  const checkForMultipleFOX = (grid, size) => {
-    let count = 0;
-
-    const checkSequence = (a, b, c) => {
-      return (
-        (a === 'F' && b === 'O' && c === 'X') ||
-        (a === 'X' && b === 'O' && c === 'F')
-      );
-    };
-
-    const checkHorizontal = (row, col) => {
-      if (checkSequence(grid[row * size + col], grid[row * size + col + 1], grid[row * size + col + 2])) {
-        count++;
-      }
-    };
-
-    const checkVertical = (row, col) => {
-      if (checkSequence(grid[row * size + col], grid[(row + 1) * size + col], grid[(row + 2) * size + col])) {
-        count++;
-      }
-    };
-
-    // check horizontally forward and backward
-    for (let row = 0; row < size; row++) {
-      for (let col = 0; col <= size - 3; col++) {
-        checkHorizontal(row, col);
-      }
-    }
-
-    // check vertically forward and backward
-    for (let col = 0; col < size; col++) {
-      for (let row = 0; row <= size - 3; row++) {
-        checkVertical(row, col);
-      }
-    }
-
-    return count > 1;
   };
 
   const grid = generateRandomFOX(gridSize);
