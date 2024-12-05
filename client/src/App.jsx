@@ -1,8 +1,6 @@
 import './App.css'
 import { Routes, Route } from 'react-router-dom'
-import Home from './pages/Home'
-import Register from './pages/Register'
-import Login from './pages/Login'
+import { Home, Register, Login, FindFox } from './pages'
 import axios from 'axios'
 import { Toaster } from 'react-hot-toast'
 import { UserContextProvider } from '../context/userContext'
@@ -18,6 +16,7 @@ function App() {
         <Route path='/' element={<Home />} />
         <Route path='/register' element={<Register />} />
         <Route path='/login' element={<Login />} />
+        <Route path='/findthefox' element={<FindFox />} />
       </Routes>
     </UserContextProvider>
   )
