@@ -4,7 +4,7 @@ const cors = require('cors');
 const { mongoose } = require('mongoose');
 const cookieParser = require('cookie-parser');
 const nodemailer = require('nodemailer');
-const { createArrayFox } = require('./Utils/foxUtils');
+const { getLeastArray, initialFox, removeLeastArray, addNewArray } = require('./Utils/foxUtils');
 
 const app = express();
 
@@ -58,7 +58,20 @@ app.listen(port, () => console.log(`Server is running on port ${port}`));
 
 // the findfox setup
 app.get('/api/findfox', (req, res) => {
-  const size = parseInt(req.query.size, 10) || 9;
-  const randomArray = createArrayFox(size);
+  // const size = parseInt(req.query.size, 10) || 3;
+  // const randomArray = createArrayFox(size * size);
+  const randomArray = getLeastArray(initialFox);
   res.json(randomArray);
 });
+
+app.post('/api/remove-least-array', (req, res) => {
+  removeLeastArray(initialFox);
+  res.json(initialFox);
+});
+
+app.post('/api/add-new-array', (req, res) => {
+  const { length } = req.body;
+  addNewArray(initialFox, length);
+  res.json(initialFox);
+});
+console.log(initialFox);

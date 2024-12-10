@@ -12,19 +12,25 @@ export default function FindFox() {
     gap: '5px',
   };
 
-  const handleButtonClick = () => {
+  const handleButtonClick = async () => {
     setGridSize(gridSize + 1);
+    await axios.post('/api/remove-least-array');
+    await axios.post('/api/add-new-array', { length: gridSize + 3 });
+    fetchFoxArray();
   };
 
-  useEffect(() => {
-    const size = gridSize * gridSize;
-    axios.get(`/api/findfox?size=${size}`)
+  const fetchFoxArray = () =>{
+    axios.get('/api/findfox')
       .then(response => {
         setFoxArray(response.data);
       })
       .catch(error => {
         console.error('There was an error fetching the foxes', error);
       });
+  };
+
+  useEffect(() => {
+    fetchFoxArray();
   }, [gridSize]);
 
   return (
