@@ -17,7 +17,8 @@ export default function FindFox() {
   };
 
   useEffect(() => {
-    axios.get('/api/findfox')
+    const size = gridSize * gridSize;
+    axios.get(`/api/findfox?size=${size}`)
       .then(response => {
         setFoxArray(response.data);
       })

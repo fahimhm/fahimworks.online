@@ -58,6 +58,7 @@ app.listen(port, () => console.log(`Server is running on port ${port}`));
 
 // the findfox setup
 app.get('/api/findfox', (req, res) => {
-  const randomArray = createArrayFox(9);
+  const size = parseInt(req.query.size, 10) || 9;
+  const randomArray = createArrayFox(size);
   res.json(randomArray);
 });
