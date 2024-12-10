@@ -4,7 +4,7 @@ const cors = require('cors');
 const { mongoose } = require('mongoose');
 const cookieParser = require('cookie-parser');
 const nodemailer = require('nodemailer');
-const { getLeastArray, initialFox, removeLeastArray, addNewArray } = require('./Utils/foxUtils');
+const { getLeastArray, initializeInitialFox, removeLeastArray, addNewArray } = require('./Utils/foxUtils');
 
 const app = express();
 
@@ -53,8 +53,7 @@ app.post('/send-email', (req, res) => {
 app.use('/', require('./routes/authRoutes'));
 
 const port = 8000;
-app.listen(port, () => console.log(`Server is running on port ${port}`));
-
+let initialFox = initializeInitialFox();
 
 // the findfox setup
 app.get('/api/findfox', (req, res) => {
@@ -80,4 +79,12 @@ app.get('/api/least-array-length', (req, res) => {
   res.json({ length: leastArray.length });
 });
 
+app.get('/api/checkfox', (req, res) => {
+  res.json(initialFox);
+});
+
+app.listen(port, () => {
+  initialFox = initializeInitialFox(); // reset the initialFox
+  console.log(`Server is running on port ${port}`)
+});
 console.log(initialFox);
