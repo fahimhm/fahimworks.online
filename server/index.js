@@ -4,6 +4,7 @@ const cors = require('cors');
 const { mongoose } = require('mongoose');
 const cookieParser = require('cookie-parser');
 const nodemailer = require('nodemailer');
+const { createArrayFox } = require('./Utils/foxUtils');
 
 const app = express();
 
@@ -53,3 +54,10 @@ app.use('/', require('./routes/authRoutes'));
 
 const port = 8000;
 app.listen(port, () => console.log(`Server is running on port ${port}`));
+
+
+// the findfox setup
+app.get('/api/findfox', (req, res) => {
+  const randomArray = createArrayFox(9);
+  res.json(randomArray);
+});
