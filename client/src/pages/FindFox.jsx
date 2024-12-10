@@ -30,6 +30,16 @@ export default function FindFox() {
   };
 
   useEffect(() => {
+    axios.get('/api/least-array-length')
+      .then(response => {
+        setGridSize(Math.sqrt(response.data.length));
+      })
+      .catch(error => {
+        console.error('There was an error fetching the least array length', error);
+      });
+  }, []);
+
+  useEffect(() => {
     fetchFoxArray();
   }, [gridSize]);
 

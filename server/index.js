@@ -74,4 +74,10 @@ app.post('/api/add-new-array', (req, res) => {
   addNewArray(initialFox, length);
   res.json(initialFox);
 });
+
+app.get('/api/least-array-length', (req, res) => {
+  const leastArray = getLeastArray(initialFox);
+  res.json({ length: leastArray.length });
+});
+
 console.log(initialFox);
