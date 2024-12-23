@@ -87,4 +87,4 @@ app.listen(port, () => {
   initialFox = initializeInitialFox(); // reset the initialFox
   console.log(`Server is running on port ${port}`)
 });
-console.log(initialFox);
+// console.log(initialFox);
