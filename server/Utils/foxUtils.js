@@ -15,25 +15,26 @@ function createArrayFox(length) { // length = 3,4,5,6
 
   placeFox(foxArray, foxLetters, direction, forward, startRow, startCol, length); // length = 3,4,5,6
 
-  const nonNullCount = foxArray.filter(value => value !== null).length;
-  const numOs = Math.floor(Math.random() * ((length * length) - nonNullCount)); // length * length = 9,16,25,36
-  for (let i = 0; i < numOs; i++) {
-    let randomIndex = Math.floor(Math.random() * foxArray.length);;
-    while (foxArray[randomIndex] !== null) {
-      randomIndex = Math.floor(Math.random() * foxArray.length);
-    }
-    foxArray[randomIndex] = 'O';
+  while (foxArray.includes(null)) {
+    const nonNullCount = foxArray.filter(value => value !== null).length;
+    const numOs = Math.floor(Math.random() * ((length * length) - nonNullCount)); // length * length = 9,16,25,36
+    for (let i = 0; i < numOs; i++) {
+      let randomIndex = Math.floor(Math.random() * foxArray.length);;
+      while (foxArray[randomIndex] !== null) {
+        randomIndex = Math.floor(Math.random() * foxArray.length);
+      }
+      foxArray[randomIndex] = 'O';
+    };
+
+    const oIndices = [];
+    for (let i = 0; i < foxArray.length; i++) {
+      if (foxArray[i] === 'O') {
+        oIndices.push(i);
+      }
+    };
+
+    aroundLetterO(foxArray, oIndices, length, foxLetters); // length = 3,4,5,6
   };
-
-  const oIndices = [];
-  for (let i = 0; i < foxArray.length; i++) {
-    if (foxArray[i] === 'O') {
-      oIndices.push(i);
-    }
-  };
-
-  aroundLetterO(foxArray, oIndices, length, foxLetters); // length = 3,4,5,6
-
   return foxArray;
 };
 
