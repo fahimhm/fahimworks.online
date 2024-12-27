@@ -1,239 +1,98 @@
-function getRandomFox() {
-  const values = ['F', 'O', 'X'];
-  return values[Math.floor(Math.random() * values.length)];
+const foxLetters = ['F', 'O', 'X'];
+const FO = foxLetters.filter(l => l !== 'X');
+const OX = foxLetters.filter(l => l !== 'F');
+const FX = foxLetters.filter(l => l !== 'O');
+const dirSet = [[-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0]];
+
+function createArrayFox(n) {
+  if (n < 3) throw new Error('n must be at least 3');
+
+  // 1. Create an n x n array of nulls
+  let arr = Array(n * n).fill(null); // length = n * n, n = 3,4,5,6...
+
+  // 2. Place the first FOX as correct answer
+  // 2.1 Chhose the direction randomly
+  const direction = dirSet[Math.floor(Math.random() * dirSet.length)];
+  // 2.2 Choose the starting position randomly
+  const { X, Y } = getStartPosition(n, direction);
+  // 2.3 Place the first FOX
+  for (let i = 0; i < foxLetters.length; i++) {
+    arr[((X + i * direction[1]) * n) + (Y + i * direction[0])] = foxLetters[i];
+  }
+
+  // 3. Maintain a list of null indices
+  let nullIndices = arr.map((v, index) => v === null ? index : -1).filter(index => index !== -1);
+
+  // 4. Place some Os randomly
+  // 4.1 Choose a random number of Os to place
+  const numOs = Math.floor(Math.random() * 3/4 * nullIndices.length) + Math.floor(1/4 * nullIndices.length);
+  // 4.2 Place the Os
+  for (let i = 0; i < numOs; i++) {
+    const randomIndex = nullIndices[Math.floor(Math.random() * nullIndices.length)]; // Math.floor(Math.random() * nullIndices.length);
+    arr[nullIndices[randomIndex]] = 'O';
+    nullIndices.splice(randomIndex, 1); // Remove the index from the list
+  }
+
+  // 5. Place some letters around the Os
+  // 5.1 Get the indices of the Os
+  const oIndices = arr.map((value, index) => value === 'O' ? index : -1).filter(index => index !== -1);
+  // 5.2 Place the letters around the Os
+  aroundLetterO(arr, oIndices, n);
+
+  // 6. Fill the null value with random letters
+  const finalNullIndices = arr.map((v, index) => v === null ? index : -1).filter(index => index !== -1);
+  for (let i = 0; i < finalNullIndices.length; i++) {
+    arr[finalNullIndices[i]] = FX[Math.floor(Math.random() * foxLetters.length)];
+  }
+  return arr;
 };
 
-function createArrayFox(length) { // length = 3,4,5,6
-  const foxLetters = ['F', 'O', 'X'];
-  let foxArray = Array(length * length).fill(null); // length * length = 9,16,25,36
+function aroundLetterO(array, posSet, length) {
+  posSet.forEach(pos => {
+    const rowO = Math.floor(pos / length);
+    const colO = pos % length;
 
-  const directions = ['horizontal', 'vertical', 'diagonalUp', 'diagonalDown'];
-  const direction = directions[Math.floor(Math.random() * directions.length)];
-  const forward = Math.random() < 0.5;
+    dirSet.forEach(([col, row]) => {
+      const newRow = rowO + row;
+      const newCol = colO + col;
+      const index = newRow * length + newCol;
 
-  const { startRow, startCol } = getStartPosition(direction, length); // length = 3,4,5,6
+      const dRow = rowO + (-1 * row);
+      const dCol = colO + (-1 * col);
+      const dIndex = dRow * length + dCol;
 
-  placeFox(foxArray, foxLetters, direction, forward, startRow, startCol, length); // length = 3,4,5,6
-
-  while (foxArray.includes(null)) {
-    const nonNullCount = foxArray.filter(value => value !== null).length;
-    const numOs = Math.floor(Math.random() * ((length * length) - nonNullCount)); // length * length = 9,16,25,36
-    for (let i = 0; i < numOs; i++) {
-      let randomIndex = Math.floor(Math.random() * foxArray.length);;
-      while (foxArray[randomIndex] !== null) {
-        randomIndex = Math.floor(Math.random() * foxArray.length);
+      if (isValidPosition(newRow, newCol, length) && array[index] === null) {
+        // array[index] = getRandomLetter(array, index, foxLetters);
+        if ((isValidPosition(dRow, dCol, length) && (array[dIndex] === null || array[dIndex] === 'O')) || !isValidPosition(dRow, dCol, length)) {
+          array[index] = foxLetters[Math.floor(Math.random() * foxLetters.length)];
+        } else if (isValidPosition(dRow, dCol, length) && array[dIndex] === 'F') {
+          array[index] = FO[Math.floor(Math.random() * FO.length)];
+        } else if (isValidPosition(dRow, dCol, length) && array[dIndex] === 'X') {
+          array[index] = OX[Math.floor(Math.random() * OX.length)];
+        }
       }
-      foxArray[randomIndex] = 'O';
-    };
-
-    const oIndices = [];
-    for (let i = 0; i < foxArray.length; i++) {
-      if (foxArray[i] === 'O') {
-        oIndices.push(i);
-      }
-    };
-
-    aroundLetterO(foxArray, oIndices, length, foxLetters); // length = 3,4,5,6
-  };
-  return foxArray;
-};
-
-function aroundLetterO(foxArray, posArray, length, letters) {
-  for (let i = 0; i < posArray.length; i++) {
-    // console.log(`posArray[${i}]:`, posArray[i]);
-    const rowO = Math.floor(posArray[i] / length);
-    const colO = posArray[i] % length;
-
-    // check surrounding tiles
-    // left side
-    if (colO > 0 && foxArray[rowO * length + (colO - 1)] === null) {
-      if (colO === length || (colO < length - 1 && foxArray[rowO * length + (colO + 1)] === null) || (colO < length - 1 && foxArray[rowO * length + (colO + 1)] === 'O')) { // check if right side is empty or is O or no right side
-        foxArray[rowO * length + (colO - 1)] = letters[Math.floor(Math.random() * letters.length)];
-      } else if (foxArray[rowO * length + (colO + 1)] === 'F' && colO < length - 1) { // check if right side is F
-        const withoutX = ['F', 'O'];
-        foxArray[rowO * length + (colO - 1)] = withoutX[Math.floor(Math.random() * withoutX.length)];
-      } else if (foxArray[rowO * length + (colO + 1)] === 'X' && colO < length - 1) { // check if right side is X
-        const withoutF = ['O', 'X'];
-        foxArray[rowO * length + (colO - 1)] = withoutF[Math.floor(Math.random() * withoutF.length)];
-      }
-    }
-    // left top corner
-    if (colO > 0 && rowO > 0 && foxArray[(rowO - 1) * length + (colO - 1)] === null) {
-      if (colO === length || rowO == length || (colO < length - 1 && rowO < length - 1 && foxArray[(rowO + 1) * length + (colO + 1)] === null) || (colO < length - 1 && rowO < length - 1 && foxArray[(rowO + 1) * length + (colO + 1)] === 'O')) { // check if right bottom corner is empty or is O or no right bottom corner
-        foxArray[(rowO - 1) * length + (colO - 1)] = letters[Math.floor(Math.random() * letters.length)];
-      } else if (colO < length - 1 && rowO < length - 1 && foxArray[(rowO + 1) * length + (colO + 1)] === 'F') {
-        const withoutX = ['F', 'O'];
-        foxArray[(rowO - 1) * length + (colO - 1)] = withoutX[Math.floor(Math.random() * withoutX.length)];
-      } else if (colO < length - 1 && rowO < length - 1 && foxArray[(rowO + 1) * length + (colO + 1)] === 'X') {
-        const withoutF = ['O', 'X'];
-        foxArray[(rowO - 1) * length + (colO - 1)] = withoutF[Math.floor(Math.random() * withoutF.length)];
-      }
-    }
-    // top side
-    if (rowO > 0 && foxArray[(rowO - 1) * length + colO] === null) {
-      if (rowO === length || (rowO < length - 1 && foxArray[(rowO + 1) * length + colO] === null) || (rowO < length - 1 && foxArray[(rowO + 1) * length + colO] === 'O')) { // check if bottom side is empty or is O or no bottom side
-        foxArray[(rowO - 1) * length + colO] = letters[Math.floor(Math.random() * letters.length)];
-      } else if (rowO < length - 1 && foxArray[(rowO + 1) * length + colO] === 'F') {
-        const withoutX = ['F', 'O'];
-        foxArray[(rowO - 1) * length + colO] = withoutX[Math.floor(Math.random() * withoutX.length)];
-      } else if (rowO < length - 1 && foxArray[(rowO + 1) * length + colO] === 'X') {
-        const withoutF = ['O', 'X'];
-        foxArray[(rowO - 1) * length + colO] = withoutF[Math.floor(Math.random() * withoutF.length)];
-      }
-    }
-    // right top corner
-    if (rowO > 0 && colO < length - 1 && foxArray[(rowO - 1) * length + (colO + 1)] === null) {
-      if (colO === 0 || rowO == length || (colO > 0 && rowO < length - 1 && foxArray[(rowO + 1) * length + (colO - 1)] === null) || (colO > 0 && rowO < length - 1 && foxArray[(rowO + 1) * length + (colO - 1)] === 'O')) { // check if left bottom corner is empty or is O or no left bottom corner
-        foxArray[(rowO - 1) * length + (colO + 1)] = letters[Math.floor(Math.random() * letters.length)];
-      } else if (colO > 0 && rowO < length - 1 && foxArray[(rowO + 1) * length + (colO - 1)] === 'F') {
-        const withoutX = ['F', 'O'];
-        foxArray[(rowO - 1) * length + (colO + 1)] = withoutX[Math.floor(Math.random() * withoutX.length)];
-      } else if (colO > 0 && rowO < length - 1 && foxArray[(rowO + 1) * length + (colO - 1)] === 'X') {
-        const withoutF = ['O', 'X'];
-        foxArray[(rowO - 1) * length + (colO + 1)] = withoutF[Math.floor(Math.random() * withoutF.length)];
-      }
-    }
-    // right side    
-    if (colO < length - 1 && foxArray[rowO * length + (colO + 1)] === null) {
-      if (colO === 0 || (colO > 0 && foxArray[rowO * length + (colO - 1)] === null) || (colO > 0 && foxArray[rowO * length + (colO - 1)] === 'O')) { // check if left side is empty or is O or no left side
-        foxArray[rowO * length + (colO + 1)] = letters[Math.floor(Math.random() * letters.length)];
-      } else if (colO > 0 && foxArray[rowO * length + (colO - 1)] === 'F') {
-        const withoutX = ['F', 'O'];
-        foxArray[rowO * length + (colO + 1)] = withoutX[Math.floor(Math.random() * withoutX.length)];
-      } else if (colO > 0 && foxArray[rowO * length + (colO - 1)] === 'X') {
-        const withoutF = ['O', 'X'];
-        foxArray[rowO * length + (colO + 1)] = withoutF[Math.floor(Math.random() * withoutF.length)];
-      }
-    }
-    // right bottom corner
-    if (colO < length - 1 && rowO < length - 1 && foxArray[(rowO + 1) * length + (colO + 1)] === null) {
-      if (colO === 0 || rowO == 0 || (colO > 0 && rowO > 0 && foxArray[(rowO - 1) * length + (colO - 1)] === null) || (colO > 0 && rowO > 0 && foxArray[(rowO - 1) * length + (colO - 1)] === 'O')) { // check if left top corner is empty or is O or no left top corner
-        foxArray[(rowO + 1) * length + (colO + 1)] === letters[Math.floor(Math.random() * letters.length)];
-      } else if (colO > 0 && rowO > 0 && foxArray[(rowO - 1) * length + (colO - 1)] === 'F') {
-        const withoutX = ['F', 'O'];
-        foxArray[(rowO + 1) * length + (colO + 1)] = withoutX[Math.floor(Math.random() * withoutX.length)];
-      } else if (colO > 0 && rowO > 0 && foxArray[(rowO - 1) * length + (colO - 1)] === 'X') {
-        const withoutF = ['O', 'X'];
-        foxArray[(rowO + 1) * length + (colO + 1)] = withoutF[Math.floor(Math.random() * withoutF.length)];
-      }
-    }
-    // bottom side
-    if (rowO < length - 1 && foxArray[(rowO + 1) * length + colO] === null) {
-      if (rowO === 0 || (rowO > 0 && foxArray[(rowO - 1) * length + colO] === null) || (rowO > 0 && foxArray[(rowO - 1) * length + colO] === 'O')) { // check if top side is empty or is O or no top side
-        foxArray[(rowO + 1) * length + colO] = letters[Math.floor(Math.random() * letters.length)];
-      } else if (rowO > 0 && foxArray[(rowO - 1) * length + colO] === 'F') {
-        const withoutX = ['F', 'O'];
-        foxArray[(rowO + 1) * length + colO] = withoutX[Math.floor(Math.random() * withoutX.length)];
-      } else if (rowO > 0 && foxArray[(rowO - 1) * length + colO] === 'X') {
-        const withoutF = ['O', 'X'];
-        foxArray[(rowO + 1) * length + colO] = withoutF[Math.floor(Math.random() * withoutF.length)];
-      }
-    }
-    // left bottom corner
-    if (colO > 0 && rowO < length - 1 && foxArray[(rowO + 1) * length + (colO - 1)] === null) {
-      if (colO === length || rowO == 0 || (colO < length - 1 && rowO > 0 && foxArray[(rowO - 1) * length + (colO + 1)] === null) || (colO < length - 1 && rowO > 0 && foxArray[(rowO - 1) * length + (colO + 1)] === 'O')) { // check if right top corner is empty or is O or no right top corner
-        foxArray[(rowO + 1) * length + (colO - 1)] = letters[Math.floor(Math.random() * letters.length)];
-      } else if (colO < length - 1 && rowO > 0 && foxArray[(rowO - 1) * length + (colO + 1)] === 'F') {
-        const withoutX = ['F', 'O'];
-        foxArray[(rowO + 1) * length + (colO - 1)] = withoutX[Math.floor(Math.random() * withoutX.length)];
-      } else if (colO < length - 1 && rowO > 0 && foxArray[(rowO - 1) * length + (colO + 1)] === 'X') {
-        const withoutF = ['O', 'X'];
-        foxArray[(rowO + 1) * length + (colO - 1)] = withoutF[Math.floor(Math.random() * withoutF.length)];
-      }
-    }
-  }
-};
-
-function getStartPosition(direction, length) {
-  let startRow, startCol;
-  if (direction === 'horizontal') {
-    startRow = Math.floor(Math.random() * length);
-    startCol = Math.floor(Math.random() * (length - 3));
-  } else if (direction === 'vertical') {
-    startRow = Math.floor(Math.random() * (length - 3));
-    startCol = Math.floor(Math.random() * length);
-  } else if (direction === 'diagonalUp') {
-    startCol = Math.floor(Math.random() * (length - 3));
-    startRow = Math.floor(Math.random() * length);
-    if (startRow < length - 1) {
-      startRow = length - 1;
-    }
-  } else {
-    startRow = Math.floor(Math.random() * (length - 3));
-    startCol = Math.floor(Math.random() * (length - 3));
-  }
-  return { startRow, startCol };
+    });
+  });
 }
 
-function placeFox(foxArray, foxLetters, direction, forward, startRow, startCol, length) { // length = 3,4,5,6
-  if (direction === 'horizontal') {
-    placeHorizontal(foxArray, foxLetters, forward, startRow, startCol, length);
-  } else if (direction === 'vertical') {
-    placeVertical(foxArray, foxLetters, forward, startRow, startCol, length);
-  } else if (direction === 'diagonalDown') {
-    placeDiagonalDown(foxArray, foxLetters, forward, startRow, startCol, length);
-  } else if (direction === 'diagonalUp') {
-    placeDiagonalUp(foxArray, foxLetters, forward, startRow, startCol, length);
-  }
+function isValidPosition(row, col, length) {
+  return row >= 0 && row < length && col >= 0 && col < length;
 }
 
-function placeHorizontal(foxArray, foxLetters, forward, startRow, startCol, length) {
-  if (forward) {
-    foxArray[startRow * length + (startCol + 0)] = foxLetters[0];
-    foxArray[startRow * length + (startCol + 1)] = foxLetters[1];
-    foxArray[startRow * length + (startCol + 2)] = foxLetters[2];
-  } else {
-    foxArray[startRow * length + (startCol + 2)] = foxLetters[0];
-    foxArray[startRow * length + (startCol + 1)] = foxLetters[1];
-    foxArray[startRow * length + (startCol + 0)] = foxLetters[2];
+function getStartPosition(n, direction) {
+  let X = Math.floor(Math.random() * (n - 3));
+  let Y = Math.floor(Math.random() * (n - 3));
+
+  if (direction[0] !== 1) {
+    Y += 2;
   }
-}
 
-function placeVertical(foxArray, foxLetters, forward, startRow, startCol, length) {
-  if (forward) {
-    foxArray[(startRow + 0) * length + startCol] = foxLetters[0];
-    foxArray[(startRow + 1) * length + startCol] = foxLetters[1];
-    foxArray[(startRow + 2) * length + startCol] = foxLetters[2];
-  } else {
-    foxArray[(startRow + 2) * length + startCol] = foxLetters[0];
-    foxArray[(startRow + 1) * length + startCol] = foxLetters[1];
-    foxArray[(startRow + 0) * length + startCol] = foxLetters[2];
+  if (direction[1] !== 1) {
+    X += 2;
   }
+
+  return { X, Y };
 }
-
-function placeDiagonalDown(foxArray, foxLetters, forward, startRow, startCol, length) {
-  if (forward) {
-    foxArray[(startRow + 0) * length + (startCol + 0)] = foxLetters[0];
-    foxArray[(startRow + 1) * length + (startCol + 1)] = foxLetters[1];
-    foxArray[(startRow + 2) * length + (startCol + 2)] = foxLetters[2];
-  } else {
-    foxArray[(startRow + 0) * length + (startCol + 0)] = foxLetters[2];
-    foxArray[(startRow + 1) * length + (startCol + 1)] = foxLetters[1];
-    foxArray[(startRow + 2) * length + (startCol + 2)] = foxLetters[0];
-  }
-}
-
-function placeDiagonalUp(foxArray, foxLetters, forward, startRow, startCol, length) {
-  if (forward) {
-    foxArray[(startRow - 0) * length + (startCol + 0)] = foxLetters[0];
-    foxArray[(startRow - 1) * length + (startCol + 1)] = foxLetters[1];
-    foxArray[(startRow - 2) * length + (startCol + 2)] = foxLetters[2];
-  } else {
-    foxArray[(startRow - 0) * length + (startCol + 0)] = foxLetters[2];
-    foxArray[(startRow - 1) * length + (startCol + 1)] = foxLetters[1];
-    foxArray[(startRow - 2) * length + (startCol + 2)] = foxLetters[0];
-  }
-}
-
-// function createArrayFox(length) {
-//   return Array.from({length}, getRandomFox);
-// };
-
-function getLeastArray(arrays) {
-  return arrays.reduce((minArray, currentArray) => 
-    currentArray.length < minArray.length ? currentArray : minArray
-  );
-};
 
 function initializeInitialFox() {
   return [
@@ -241,6 +100,12 @@ function initializeInitialFox() {
     createArrayFox(4),
     createArrayFox(5),
   ];
+};
+
+function getLeastArray(arrays) {
+  return arrays.reduce((minArray, currentArray) => 
+    currentArray.length < minArray.length ? currentArray : minArray
+  );
 };
 
 function removeLeastArray(arrays) {
