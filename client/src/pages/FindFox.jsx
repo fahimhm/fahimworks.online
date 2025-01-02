@@ -32,7 +32,8 @@ export default function FindFox() {
   useEffect(() => {
     axios.get('/api/least-array-length')
       .then(response => {
-        setGridSize(Math.sqrt(response.data.length));
+        // setGridSize(Math.sqrt(response.data.length));
+        setGridSize(response.data.length);
       })
       .catch(error => {
         console.error('There was an error fetching the least array length', error);
@@ -46,8 +47,10 @@ export default function FindFox() {
   return (
     <div className="flex items-center justify-center h-screen">
       <div style={boardStyle}>
-        {foxArray.map((value, index) => (
-          <div key={index} className="w-[50px] border-[1px] border-white aspect-square flex items-center justify-center text-white">{value}</div>
+        {foxArray.map((row, rowIndex) => (
+          row.map((value, colIndex) => (
+            <div key={`${rowIndex}+${colIndex}`} className="w-[50px] border-[1px] border-white aspect-square flex items-center justify-center text-white">{value}</div>
+          ))
         ))}
       </div>
       <button onClick={handleButtonClick} className="absolute px-4 py-2 mt-4 text-white bg-blue-500 rounded bottom-4">+</button>
