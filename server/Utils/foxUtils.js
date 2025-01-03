@@ -133,7 +133,7 @@ function aroundLetterO(array, rowO, colO, length) {
 
     if (newRow >= 0 && newRow < length && newCol >= 0 && newCol < length && array[newRow][newCol] === null) {
       if (dRow < 0 || dCol < 0 || array[dRow][dCol] === null || array[dRow][dCol] === 'O') {
-        array[newRow][newCol] = foxLetters[Math.floor(Math.random() * foxLetters.length)];
+        array[newRow][newCol] = FX[Math.floor(Math.random() * FX.length)];
       } else if (array[dRow][dCol] === 'F') {
         array[newRow][newCol] = FO[Math.floor(Math.random() * FO.length)];
       } else if (array[dRow][dCol] === 'X') {
