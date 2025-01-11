@@ -1,5 +1,6 @@
 import { FoxHeadIcon, QuestionMarkIcon } from "../assets/Icons"
 import Tooltip from './Tooltip';
+import { Link } from 'react-router-dom';
 import {
   MotionValue,
   motion,
@@ -14,12 +15,21 @@ export default function Dock() {
   let mouseX = useMotionValue(Infinity);
   
   const description = [
-    'Find the FOX',
+    'What the FOX!!',
     'Not available',
     'Not available',
     'Not available',
     'Not available',
     'Not available',
+  ];
+
+  const urls = [
+    '/findthefox',
+    '/',
+    '/',
+    '/',
+    '/',
+    '/',
   ];
 
   return (
@@ -29,7 +39,9 @@ export default function Dock() {
       className="flex items-end h-16 gap-4 px-4 pb-3 bg-secondaryBg rounded-xl glassmorphism">
       {[...Array(6).keys()].map((i) => (
         <Tooltip key={i} description={description[i]}>
-          <AppIcon mouseX={mouseX} index={i} />
+          <Link to={urls[i]}>
+            <AppIcon mouseX={mouseX} index={i} />
+          </Link>
         </Tooltip>
       ))}
     </div>
