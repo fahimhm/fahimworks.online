@@ -39,8 +39,8 @@ function ExpItem({title, main, sub, pos, skill}) {
 
 export default function Exp() {
   const exps = [
-    {title: 'Grab', pos:'Data Analyst', main: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nostrum est laudantium ex quos laborum molestiae unde assumenda atque reiciendis deleniti!', sub: "Jan'22 - Present", skill: ['Python', 'SQL', 'PowerBI', 'AWS - Databricks', 'MLFlow']},
-    {title: 'Shopee International', pos:'Business Intelligence', main: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatum reiciendis debitis in necessitatibus placeat magni consequuntur magnam ratione delectus dolorum?', sub: "Nov'19 - Dec'21", skill: ['Python', 'SQL']},
+    {title: 'Grab', pos:'Data Analyst', main: 'As a Grabber, my role is to gather and deliver business insight using data. I collect the data (SQL), process the data (python) and deliver the insight (power BI).', sub: "Jan'22 - Present", skill: ['Python', 'SQL', 'PowerBI', 'AWS - Databricks', 'MLFlow']},
+    {title: 'Shopee International', pos:'Business Intelligence', main: 'I help business team to analyze data in order to get additional insight, track a project objective and create automation system for operational team.', sub: "Nov'19 - Dec'21", skill: ['Python', 'SQL']},
   ];
 
   return (
